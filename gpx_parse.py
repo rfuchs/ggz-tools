@@ -11,9 +11,12 @@ class GchParser:
 		self._close_tag_handlers={
 			"gpx/wpt/name":self._handle_name,
 			"gpx/wpt/sym":self._handle_sym,
+
+			"gpx/wpt/groundspeak:cache/groundspeak:container":self._handle_gs_container,
+			"gpx/wpt/groundspeak:cache/groundspeak:difficulty":self._handle_gs_difficulty,
 			"gpx/wpt/groundspeak:cache/groundspeak:name":self._handle_gs_name,
+			"gpx/wpt/groundspeak:cache/groundspeak:terrain":self._handle_gs_terrain,
 			"gpx/wpt/groundspeak:cache/groundspeak:type":self._handle_type,
-			"gpx/wpt":self._handle_wpt_close,
 
 			"gpx/wpt/ox:opencaching/ox:ratings/ox:awesomeness":self._handle_ox_awesomeness,
 			"gpx/wpt/ox:opencaching/ox:ratings/ox:difficulty":self._handle_ox_difficulty,
@@ -23,6 +26,8 @@ class GchParser:
 			"gpx/wpt/groundspeak:cache/groundspeak:difficulty":self._handle_gs_difficulty,
 			"gpx/wpt/groundspeak:cache/groundspeak:terrain":self._handle_gs_terrain,
 			"gpx/wpt/groundspeak:cache/groundspeak:container":self._handle_gs_container,
+
+			"gpx/wpt":self._handle_wpt_close,
 			}
 
 		self._open_tag_handlers={
@@ -61,7 +66,11 @@ class GchParser:
 		self._gch.terrain = float( text )
 
 	def _handle_gs_container(self,text,ebi):
-		self._gch.size = self._gs_container_size_map[text.lower()]
+		try:
+			self._gch.size = self._gs_container_size_map[text.lower()]
+		except KeyError:
+			print "Warning:Don't know how to handle size of '" + text + "' on cache '" + self._gch.name + "'";
+			self._gch.size = -1.0
 
 	def _handle_name(self,text,ebi):
 		self._gch.name=text
